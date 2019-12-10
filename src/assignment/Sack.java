@@ -24,11 +24,15 @@ public class Sack {
     }
     
     boolean isFull() {
+        // TODO - check if this returns capacity of array, or current contents?
         return presents.length == capacity;
     }
     
     void addPresent(Present present) {
         // TODO
+        // Need to lock presents
+        // Add present
+        // Release lock
     }
     
     int getCount() {
