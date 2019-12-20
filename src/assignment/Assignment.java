@@ -23,6 +23,8 @@ public class Assignment {
         
         MachineConfig config = fileReader.readFile();
         
+        Machine machine = new Machine(config);
+        
         System.out.println("assignment.Assignment.main()");
     }
     

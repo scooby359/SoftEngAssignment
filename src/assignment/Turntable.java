@@ -28,19 +28,24 @@ public class Turntable {
         }
     }
     
+    float TURN_SPEED = 0.5f;
+    float MOVE_SPEED = 0.75f;
+    
+    String id;
     Present present;
-    float turnSpeed;
-    float moveSpeed;
     int[] AssociatedDestinations;
+    PresentReceiver north;
+    PresentReceiver east;
+    PresentReceiver south;
+    PresentReceiver west;
 
-    public Turntable(float turnSpeed, float moveSpeed) {
-        this.turnSpeed = turnSpeed;
-        this.moveSpeed = moveSpeed;
-        // TODO
-        // need to hook up connecting conveyors or sacks
+    public Turntable(String id, PresentReceiver north, PresentReceiver east, PresentReceiver south, PresentReceiver west) {
+        this.id = id;
+        this.north = north;
+        this.east = east;
+        this.south = south;
+        this.west = west;
     }
-    
-    
     
     void CheckForInput() {
         // TODO
