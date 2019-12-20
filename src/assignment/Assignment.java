@@ -16,6 +16,12 @@ public class Assignment {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        
+        ConfigFileReader fileReader = new ConfigFileReader();
+        
+        ConfigFileReader.MachineConfig config = fileReader.readFile();
+        
+        System.out.println("assignment.Assignment.main()");
     }
     
 }

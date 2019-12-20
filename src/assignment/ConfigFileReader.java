@@ -12,10 +12,11 @@ import java.util.ArrayList;
 
 /**
  *
- * @author cewalton
- * // TODO - parse TIMER, return everything to machine to build
+ * @author cewalton // TODO - parse TIMER, return everything to machine to build
  */
 public class ConfigFileReader {
+    
+    String configName = "config_basic.txt";
 
     class BeltConfig {
 
@@ -39,6 +40,7 @@ public class ConfigFileReader {
 
         public HopperConfig(int id, int belt, int capacity, int speed) {
             this.id = id;
+            this.belt = belt;
             this.capacity = capacity;
             this.speed = speed;
         }
@@ -75,12 +77,32 @@ public class ConfigFileReader {
     }
 
     class PresentConfig {
+
         int id;
         String[] ages;
 
         public PresentConfig(int id, String[] age) {
             this.id = id;
             this.ages = age;
+        }
+    }
+
+    class MachineConfig {
+
+        ArrayList<BeltConfig> belts;
+        ArrayList<HopperConfig> hoppers;
+        ArrayList<SackConfig> sacks;
+        ArrayList<TurntableConfig> turntables;
+        ArrayList<PresentConfig> presents;
+        int timer;
+
+        public MachineConfig(ArrayList<BeltConfig> belts, ArrayList<HopperConfig> hoppers, ArrayList<SackConfig> sacks, ArrayList<TurntableConfig> turntables, ArrayList<PresentConfig> presents, int timer) {
+            this.belts = belts;
+            this.hoppers = hoppers;
+            this.sacks = sacks;
+            this.turntables = turntables;
+            this.presents = presents;
+            this.timer = timer;
         }
     }
 
@@ -91,8 +113,15 @@ public class ConfigFileReader {
     ArrayList<PresentConfig> presents = new ArrayList<PresentConfig>();
     int timer;
 
-    public void readFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader("N:\\Modules\\SoftwareEngineering\\Assignment\\src\\assignment\\config.txt"))) {
+    public MachineConfig readFile() {
+        
+        String currentPath = System.getProperty("user.dir");
+        String configPath = "\\src\\assignment\\";
+        String filePath = currentPath + configPath + configName;
+        
+        System.out.println("Reading config from: " + filePath);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -211,11 +240,10 @@ public class ConfigFileReader {
                     }
                 }
                 if (line.startsWith("PRESENTS")) {
-                    // Skip any blank lines
 
                     int id = Integer.parseInt(line.substring(9));
                     ArrayList<String> ages = new ArrayList<String>();
-                    
+
                     do {
                         line = br.readLine();
                     } while (line.equals(""));
@@ -235,11 +263,18 @@ public class ConfigFileReader {
 
                         // Create config object
                     }
-                    presents.add(new PresentConfig(id, (String[]) ages.toArray()));
+                    String[] str_ages = new String[ages.size()];
+                    str_ages = ages.toArray(str_ages);
+                    presents.add(new PresentConfig(id, str_ages));
+                }
+
+                if (line.startsWith("TIMER")) {
+                    timer = Integer.parseInt(line.substring(6));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return new MachineConfig(belts, hoppers, sacks, turntables, presents, timer);
     }
 }
