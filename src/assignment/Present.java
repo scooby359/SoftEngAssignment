@@ -23,26 +23,25 @@ public class Present {
 
     public Present(String input) {
         
-        switch(input) {
-            case "0-3":
-                group = AgeGroup.ZEROTOTHREE;
-                break;
-            case "4-6":
-                group = AgeGroup.FOURTOSIX;
-                break;
-            case "7-10":
-                group = AgeGroup.SEVENTOTEN;
-                break;
-            case "11-16":
-                group = AgeGroup.ELEVENTOSIXTEEN;
-                break;
-            default:
-                throw new IllegalArgumentException("Age not recognised");
-        }
+        this.group = ConvertAgeStringToEnum(input);
     }
     
     AgeGroup getGroup() {
         return group;
     };
     
+      public static AgeGroup ConvertAgeStringToEnum(String input) throws IllegalArgumentException {
+        switch(input) {
+            case "0-3":
+                return AgeGroup.ZEROTOTHREE;
+            case "4-6":
+                return AgeGroup.FOURTOSIX;
+            case "7-10":
+                return AgeGroup.SEVENTOTEN;
+            case "11-16":
+                return AgeGroup.ELEVENTOSIXTEEN;
+            default:
+                throw new IllegalArgumentException("Age not recognised");
+        }
+    }
 }

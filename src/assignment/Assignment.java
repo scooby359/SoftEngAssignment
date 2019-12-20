@@ -5,6 +5,8 @@
  */
 package assignment;
 
+import assignment.ConfigFileReader.MachineConfig;
+
 /**
  *
  * @author cewalton
@@ -19,7 +21,7 @@ public class Assignment {
         
         ConfigFileReader fileReader = new ConfigFileReader();
         
-        ConfigFileReader.MachineConfig config = fileReader.readFile();
+        MachineConfig config = fileReader.readFile();
         
         System.out.println("assignment.Assignment.main()");
     }

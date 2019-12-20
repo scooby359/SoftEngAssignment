@@ -10,6 +10,7 @@ package assignment;
  * @author cewalton
  */
 public class Hopper {
+    int id;
     Present[] presents;
     boolean isActive;
     // TargetConveyor
@@ -18,10 +19,11 @@ public class Hopper {
     int startingPresentCount;    
     int presentsReleased = 0;
 
-    public Hopper(Present[] presents, float speed, int startingPresentCount) {
+    public Hopper(int id, Present[] presents, float speed) {
+        this.id = id;
         this.presents = presents;
         this.speed = speed;
-        this.startingPresentCount = startingPresentCount;
+        this.startingPresentCount = presents.length;
         // Init target conveyor
     }
     

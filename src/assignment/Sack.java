@@ -9,7 +9,7 @@ package assignment;
  *
  * @author cewalton
  */
-public class Sack {
+public class Sack extends PresentReceiver{
     int id;
     int capacity;
     int count = 0;
@@ -28,7 +28,7 @@ public class Sack {
         return presents.length == capacity;
     }
     
-    void addPresent(Present present) {
+    public void addPresent(Present present) {
         // TODO
         // Need to lock presents
         // Add present

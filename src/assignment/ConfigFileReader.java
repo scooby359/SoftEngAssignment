@@ -15,30 +15,37 @@ import java.util.ArrayList;
  * @author cewalton // TODO - parse TIMER, return everything to machine to build
  */
 public class ConfigFileReader {
-    
-    String configName = "config_basic.txt";
 
-    class BeltConfig {
+    // String configName = "config_basic.txt";
+    String configName = "config.txt";
+
+    /**
+     * The belt configuration
+     */
+    public class BeltConfig {
 
         int id;
         int length;
         int[] destinations;
 
-        public BeltConfig(int id, int length, int[] destinations) {
+        BeltConfig(int id, int length, int[] destinations) {
             this.id = id;
             this.length = length;
             this.destinations = destinations;
         }
     }
 
-    class HopperConfig {
+    /**
+     * The hopper configuration
+     */
+    public class HopperConfig {
 
         int id;
         int belt;
         int capacity;
         int speed;
 
-        public HopperConfig(int id, int belt, int capacity, int speed) {
+        HopperConfig(int id, int belt, int capacity, int speed) {
             this.id = id;
             this.belt = belt;
             this.capacity = capacity;
@@ -46,20 +53,26 @@ public class ConfigFileReader {
         }
     }
 
-    class SackConfig {
+    /**
+     * The sack configuration
+     */
+    public class SackConfig {
 
         int id;
         int capacity;
         String age;
 
-        public SackConfig(int id, int capacity, String age) {
+        SackConfig(int id, int capacity, String age) {
             this.id = id;
             this.capacity = capacity;
             this.age = age;
         }
     }
 
-    class TurntableConfig {
+    /**
+     * The turntable configuration
+     */
+    public class TurntableConfig {
 
         String id;
         String north;
@@ -67,7 +80,7 @@ public class ConfigFileReader {
         String south;
         String west;
 
-        public TurntableConfig(String id, String north, String east, String south, String west) {
+        TurntableConfig(String id, String north, String east, String south, String west) {
             this.id = id;
             this.north = north;
             this.east = east;
@@ -76,27 +89,51 @@ public class ConfigFileReader {
         }
     }
 
-    class PresentConfig {
+    /**
+     * The present configuration
+     */
+    public class PresentConfig {
 
         int id;
         String[] ages;
 
-        public PresentConfig(int id, String[] age) {
+        PresentConfig(int id, String[] age) {
             this.id = id;
             this.ages = age;
         }
     }
 
-    class MachineConfig {
+    /**
+     * Machine configuration parameters
+     */
+    public class MachineConfig {
 
+        /**
+         * List of belt configurations
+         */
         ArrayList<BeltConfig> belts;
+        /**
+         * List of hopper configurations
+         */
         ArrayList<HopperConfig> hoppers;
+        /**
+         * List of sack configurations
+         */
         ArrayList<SackConfig> sacks;
+        /**
+         * List of turntable configurations
+         */
         ArrayList<TurntableConfig> turntables;
+        /**
+         * List of present configurations
+         */
         ArrayList<PresentConfig> presents;
+        /**
+         * Defines how long the machine should run, in seconds
+         */
         int timer;
 
-        public MachineConfig(ArrayList<BeltConfig> belts, ArrayList<HopperConfig> hoppers, ArrayList<SackConfig> sacks, ArrayList<TurntableConfig> turntables, ArrayList<PresentConfig> presents, int timer) {
+        MachineConfig(ArrayList<BeltConfig> belts, ArrayList<HopperConfig> hoppers, ArrayList<SackConfig> sacks, ArrayList<TurntableConfig> turntables, ArrayList<PresentConfig> presents, int timer) {
             this.belts = belts;
             this.hoppers = hoppers;
             this.sacks = sacks;
@@ -106,19 +143,26 @@ public class ConfigFileReader {
         }
     }
 
-    ArrayList<BeltConfig> belts = new ArrayList<BeltConfig>();
-    ArrayList<HopperConfig> hoppers = new ArrayList<HopperConfig>();
-    ArrayList<SackConfig> sacks = new ArrayList<SackConfig>();
-    ArrayList<TurntableConfig> turntables = new ArrayList<TurntableConfig>();
-    ArrayList<PresentConfig> presents = new ArrayList<PresentConfig>();
+    // Holding variables to be filled as config file is parsed
+    ArrayList<BeltConfig> belts = new ArrayList<>();
+    ArrayList<HopperConfig> hoppers = new ArrayList<>();
+    ArrayList<SackConfig> sacks = new ArrayList<>();
+    ArrayList<TurntableConfig> turntables = new ArrayList<>();
+    ArrayList<PresentConfig> presents = new ArrayList<>();
     int timer;
 
+    /**
+     * Reads the predefined configuration file and returns the parsed
+     * configuration
+     *
+     * @return Parsed configuration
+     */
     public MachineConfig readFile() {
-        
+
         String currentPath = System.getProperty("user.dir");
         String configPath = "\\src\\assignment\\";
         String filePath = currentPath + configPath + configName;
-        
+
         System.out.println("Reading config from: " + filePath);
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -242,7 +286,7 @@ public class ConfigFileReader {
                 if (line.startsWith("PRESENTS")) {
 
                     int id = Integer.parseInt(line.substring(9));
-                    ArrayList<String> ages = new ArrayList<String>();
+                    ArrayList<String> ages = new ArrayList<>();
 
                     do {
                         line = br.readLine();

@@ -9,18 +9,20 @@ package assignment;
  *
  * @author cewalton
  */
-public class Conveyor {
+public class Belt extends PresentReceiver {
     
+    int id;
     Present[] presents;
     int beltLength;
     int presentCount;
 
-    public Conveyor(int beltLength) {
+    public Belt(int id, int beltLength) {
         this.beltLength = beltLength;
         presents = new Present[this.beltLength];
     }
     
-    void addPresent() {
+    @Override
+    public void addPresent(Present present) {
         // TODO
     }
     
