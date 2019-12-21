@@ -17,6 +17,7 @@ public class Belt extends PresentReceiver {
     int presentCount;
 
     public Belt(int id, int beltLength) {
+        this.id = id;
         this.beltLength = beltLength;
         presents = new Present[this.beltLength];
     }
@@ -24,6 +25,7 @@ public class Belt extends PresentReceiver {
     @Override
     public void addPresent(Present present) {
         // TODO
+        System.out.println("Belt " + this.id + " received present");
     }
     
     boolean isFull() {

@@ -25,6 +25,11 @@ public class Assignment {
         
         Machine machine = new Machine(config);
         
+        // TODO - should probbaly just be a machine.start() call, move all the run calls inside Machine class
+        for (Hopper hopper : machine.hoppers) {
+            hopper.run();
+        }
+        
         System.out.println("assignment.Assignment.main()");
     }
     

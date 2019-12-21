@@ -97,7 +97,15 @@ public class Machine {
             if (hopperInput == null) {
                 throw new NullPointerException("Hopper input not found");
             }
-            hoppers[i] = new Hopper(configHopper.id, hopperInput.getPresents(), configHopper.speed);
+            
+            Belt receivingBelt = null;
+            for(Belt belt: belts) {
+                if(belt.id == configHopper.belt) {
+                    receivingBelt = belt;
+                }
+            }
+            
+            hoppers[i] = new Hopper(configHopper.id, hopperInput.getPresents(), configHopper.speed, receivingBelt);
         }
 
         // Setup turntables
