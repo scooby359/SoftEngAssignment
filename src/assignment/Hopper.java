@@ -74,4 +74,5 @@ public class Hopper implements Runnable {
             this.relasePresent();
         } while (isActive);
     }
+
 }

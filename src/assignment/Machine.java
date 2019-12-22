@@ -209,6 +209,17 @@ public class Machine {
         }
     }
 
+    public void start() {
+        // Call from main function to start machine running
+        // Should call all threaded objects to run
+        
+        for (Hopper hopper: hoppers) {
+            hopper.run();
+        }
+        
+        // TODO - start all other threaded objects
+    }
+    
     void logStart() {
         // TODO
     }
