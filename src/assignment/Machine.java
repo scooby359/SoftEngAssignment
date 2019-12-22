@@ -113,10 +113,10 @@ public class Machine {
 
             TurntableConfig configTurntable = config.turntables.get(i);
 
-            PresentReceiver north = null;
-            PresentReceiver east = null;
-            PresentReceiver south = null;
-            PresentReceiver west = null;
+            ConnectionInterface north = null;
+            ConnectionInterface east = null;
+            ConnectionInterface south = null;
+            ConnectionInterface west = null;
 
             int outputId;
 

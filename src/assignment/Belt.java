@@ -11,7 +11,7 @@ import java.util.concurrent.Semaphore;
  *
  * @author cewalton
  */
-public class Belt extends PresentReceiver {
+public class Belt extends ConnectionInterface {
     
     int id;
     Present[] presents;
@@ -54,6 +54,7 @@ public class Belt extends PresentReceiver {
         mutex.release();
     }
     
+    @Override
     public Present removePresent() {
         
         try {
@@ -77,7 +78,7 @@ public class Belt extends PresentReceiver {
         return removedPresent;
     }
     
-    boolean isFull() {
+    public Boolean isFull() {
         return presentCount == beltLength;
     }
     
@@ -133,5 +134,9 @@ public class Belt extends PresentReceiver {
         // Return first present
         return returnPresent;
     }
-    
+
+    @Override
+    public Boolean checkPresentAvailable() {
+        return !isEmpty();
+    }
 }

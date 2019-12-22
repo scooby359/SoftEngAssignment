@@ -9,29 +9,28 @@ package assignment;
  *
  * @author cewalton
  */
-
 public class Present {
-    
+
     public static enum AgeGroup {
         ZEROTOTHREE,
         FOURTOSIX,
         SEVENTOTEN,
         ELEVENTOSIXTEEN
     }
-    
+
     AgeGroup group;
 
     public Present(String input) {
-        
+
         this.group = ConvertAgeStringToEnum(input);
     }
-    
+
     AgeGroup getGroup() {
         return group;
-    };
-    
-      public static AgeGroup ConvertAgeStringToEnum(String input) throws IllegalArgumentException {
-        switch(input) {
+    }
+
+    public static AgeGroup ConvertAgeStringToEnum(String input) throws IllegalArgumentException {
+        switch (input) {
             case "0-3":
                 return AgeGroup.ZEROTOTHREE;
             case "4-6":
