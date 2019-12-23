@@ -12,6 +12,7 @@ import assignment.ConfigFileReader.PresentConfig;
 import assignment.ConfigFileReader.SackConfig;
 import assignment.ConfigFileReader.TurntableConfig;
 import assignment.Present.AgeGroup;
+import java.util.ArrayList;
 
 /**
  *
@@ -43,21 +44,11 @@ public class Machine {
         // Declare machine run time
         sessionLength = config.timer;
 
-        // Setup presents for hoppers
-        for (int i = 0; i < config.presents.size(); i++) {
-
-            // Get local ref for ease
-            PresentConfig configPresent = config.presents.get(i);
-
-            // Create list of presents and populate
-            Present[] presents = new Present[configPresent.ages.length];
-            for (int j = 0; j < configPresent.ages.length; j++) {
-                presents[j] = new Present(configPresent.ages[j]);
-            }
-
-            // Create hopper input
-            hopperInputs[i] = new HopperInput(configPresent.id, presents);
-        }
+        // Temp arrays to track sack target groups
+        ArrayList<Integer> zero_three = new ArrayList<>();
+        ArrayList<Integer> four_six = new ArrayList<>();
+        ArrayList<Integer> seven_ten = new ArrayList<>();
+        ArrayList<Integer> eleven_sixteen = new ArrayList<>();
 
         // Setup Sacks
         for (int i = 0; i < config.sacks.size(); i++) {
@@ -68,6 +59,59 @@ public class Machine {
             // Create each sack instance
             AgeGroup ageGroup = Present.ConvertAgeStringToEnum(configSack.age);
             sacks[i] = new Sack(configSack.id, configSack.capacity, ageGroup);
+
+            // Add sack to target list
+            switch (ageGroup) {
+                case ZEROTOTHREE:
+                    zero_three.add(configSack.id);
+                    break;
+                case FOURTOSIX:
+                    four_six.add(configSack.id);
+                    break;
+                case SEVENTOTEN:
+                    seven_ten.add(configSack.id);
+                    break;
+                case ELEVENTOSIXTEEN:
+                    eleven_sixteen.add(configSack.id);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Age group not recognised");
+            }
+        }
+
+        // Setup presents for hoppers
+        for (int i = 0; i < config.presents.size(); i++) {
+
+            // Get local ref for ease
+            PresentConfig configPresent = config.presents.get(i);
+
+            // Create list of presents and populate
+            Present[] presents = new Present[configPresent.ages.length];
+            for (int j = 0; j < configPresent.ages.length; j++) {
+                Present newPresent = new Present(configPresent.ages[j]);
+                
+                // Set present target list
+                switch (newPresent.getGroup()) {
+                    case ZEROTOTHREE:
+                        newPresent.setTargetSacks(convertIntegers(zero_three));
+                        break;
+                    case FOURTOSIX:
+                        newPresent.setTargetSacks(convertIntegers(four_six));
+                        break;
+                    case SEVENTOTEN:
+                        newPresent.setTargetSacks(convertIntegers(seven_ten));
+                        break;
+                    case ELEVENTOSIXTEEN:
+                        newPresent.setTargetSacks(convertIntegers(eleven_sixteen));
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Age group not recognised");
+                }
+
+                presents[j] = newPresent;
+            }
+            // Create hopper input
+            hopperInputs[i] = new HopperInput(configPresent.id, presents);
         }
 
         // Setup belts
@@ -97,14 +141,14 @@ public class Machine {
             if (hopperInput == null) {
                 throw new NullPointerException("Hopper input not found");
             }
-            
+
             Belt receivingBelt = null;
-            for(Belt belt: belts) {
-                if(belt.id == configHopper.belt) {
+            for (Belt belt : belts) {
+                if (belt.id == configHopper.belt) {
                     receivingBelt = belt;
                 }
             }
-            
+
             hoppers[i] = new Hopper(configHopper.id, hopperInput.getPresents(), configHopper.speed, receivingBelt);
         }
 
@@ -209,17 +253,25 @@ public class Machine {
         }
     }
 
+    public int[] convertIntegers(ArrayList<Integer> input) {
+        int[] ret = new int[input.size()];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = input.get(i);
+        }
+        return ret;
+    }
+
     public void start() {
         // Call from main function to start machine running
         // Should call all threaded objects to run
-        
-        for (Hopper hopper: hoppers) {
+
+        for (Hopper hopper : hoppers) {
             hopper.run();
         }
-        
+
         // TODO - start all other threaded objects
     }
-    
+
     void logStart() {
         // TODO
     }

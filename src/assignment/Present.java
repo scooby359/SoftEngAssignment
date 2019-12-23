@@ -18,15 +18,23 @@ public class Present {
         ELEVENTOSIXTEEN
     }
 
-    AgeGroup group;
+    private AgeGroup group;
+    private int[] targetSacks;
 
     public Present(String input) {
-
         this.group = ConvertAgeStringToEnum(input);
     }
 
-    AgeGroup getGroup() {
+    public AgeGroup getGroup() {
         return group;
+    }
+    
+    public void setTargetSacks(int[] targets) {
+        this.targetSacks = targets;
+    }
+    
+    public int[] getTargetSacks() {
+        return targetSacks;
     }
 
     public static AgeGroup ConvertAgeStringToEnum(String input) throws IllegalArgumentException {
