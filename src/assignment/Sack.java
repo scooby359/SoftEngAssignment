@@ -35,7 +35,12 @@ public class Sack extends ConnectionInterface {
     public AgeGroup getAgeGroup() {
         return this.ageGroup;
     }
+    
+    public int getId() {
+        return this.id;
+    }
 
+    @Override
     public void addPresent(Present present) {
         try {
             // Get mutex

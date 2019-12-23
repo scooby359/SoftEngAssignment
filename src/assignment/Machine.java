@@ -156,104 +156,68 @@ public class Machine {
         for (int i = 0; i < config.turntables.size(); i++) {
 
             TurntableConfig configTurntable = config.turntables.get(i);
-
-            ConnectionInterface north = null;
-            ConnectionInterface east = null;
-            ConnectionInterface south = null;
-            ConnectionInterface west = null;
-
-            int outputId;
-
+            
             // Check each turntable direction
-            if (configTurntable.north.startsWith("os")
-                    || configTurntable.north.startsWith("ob")) {
-                outputId = Integer.parseInt(configTurntable.north.substring(3));
-                if (configTurntable.north.startsWith("os")) {
-                    for (Sack sack : sacks) {
-                        if (sack.id == outputId) {
-                            north = sack;
-                            break;
-                        }
-                    }
-                }
-                if (configTurntable.north.startsWith("ob")) {
-                    for (Belt belt : belts) {
-                        if (belt.id == outputId) {
-                            north = belt;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (configTurntable.east.startsWith("os")
-                    || configTurntable.east.startsWith("ob")) {
-                outputId = Integer.parseInt(configTurntable.east.substring(3));
-                if (configTurntable.east.startsWith("os")) {
-                    for (Sack sack : sacks) {
-                        if (sack.id == outputId) {
-                            east = sack;
-                            break;
-                        }
-                    }
-                }
-                if (configTurntable.east.startsWith("ob")) {
-                    for (Belt belt : belts) {
-                        if (belt.id == outputId) {
-                            east = belt;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (configTurntable.south.startsWith("os")
-                    || configTurntable.south.startsWith("ob")) {
-                outputId = Integer.parseInt(configTurntable.south.substring(3));
-                if (configTurntable.south.startsWith("os")) {
-                    for (Sack sack : sacks) {
-                        if (sack.id == outputId) {
-                            south = sack;
-                            break;
-                        }
-                    }
-                }
-                if (configTurntable.south.startsWith("ob")) {
-                    for (Belt belt : belts) {
-                        if (belt.id == outputId) {
-                            south = belt;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (configTurntable.west.startsWith("os")
-                    || configTurntable.west.startsWith("ob")) {
-                outputId = Integer.parseInt(configTurntable.west.substring(3));
-                if (configTurntable.west.startsWith("os")) {
-                    for (Sack sack : sacks) {
-                        if (sack.id == outputId) {
-                            west = sack;
-                            break;
-                        }
-                    }
-                }
-                if (configTurntable.west.startsWith("ob")) {
-                    for (Belt belt : belts) {
-                        if (belt.id == outputId) {
-                            west = belt;
-                            break;
-                        }
-                    }
-                }
-            }
+            TurntableConnector north = setupPort(configTurntable.north, belts, sacks);
+            TurntableConnector east = setupPort(configTurntable.east, belts, sacks);
+            TurntableConnector south = setupPort(configTurntable.south, belts, sacks);
+            TurntableConnector west = setupPort(configTurntable.west, belts, sacks);
 
             turntables[i] = new Turntable(configTurntable.id, north, east, south, west);
         }
     }
 
-    public int[] convertIntegers(ArrayList<Integer> input) {
+    private TurntableConnector setupPort(String config, Belt[] belts, Sack[] sacks) {
+        // Early return for empty port
+        if (config.equals("null")) {
+            return null;
+        }
+        
+        int targetId = Integer.parseInt(config.substring(3));
+        ConnectionInterface port = null;
+        Boolean input = false;
+        
+        
+        // Find input belt
+        if (config.startsWith("ib")) {
+            input = true;
+            for (Belt belt: belts) {
+                if (belt.id == targetId) {
+                    port = belt;
+                    break;
+                }
+            }
+        }
+        
+        // Find output belt
+        if (config.startsWith("ob")) {
+            for (Belt belt: belts) {
+                if (belt.id == targetId) {
+                    port = belt;
+                    break;
+                }
+            }
+        }
+        
+        // Find output sack
+        if (config.startsWith("os")) {
+            for (Sack sack: sacks) {
+                if (sack.id == targetId) {
+                    port = sack;
+                    break;
+                }
+            }
+        }
+        
+        // Safety check to ensure all set
+        if (port  == null) {
+            throw new IllegalStateException("Port not recognised");
+        }
+        
+        return new TurntableConnector(port, input);
+    }
+    
+    private int[] convertIntegers(ArrayList<Integer> input) {
         int[] ret = new int[input.size()];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = input.get(i);
