@@ -19,7 +19,7 @@ public class Assignment {
     public static void main(String[] args) {
 
         // Read config file in
-        String configFile = "config_basic_1.txt";
+        String configFile = "config_big.txt";
         ConfigFileReader fileReader = new ConfigFileReader(configFile);
 
         // Build config object from input

@@ -274,6 +274,8 @@ public class Machine {
         }
         logOutput("Input stopped");
 
+        printSummary();
+        
         // Send stop indicator to all turntables 
         // - will continue to run until inputs clear
         for (Turntable turntable : turntables) {
@@ -338,14 +340,14 @@ public class Machine {
         // Get counts of presents left on machine
         for (Belt belt : belts) {
             onBeltCount += belt.getPresentCount();
-            // System.out.println("- Belt ID: " + belt.getId() + ". Presents on belt: " + belt.getPresentCount());
+            System.out.println("- Belt ID: " + belt.getId() + ". Presents on belt: " + belt.getPresentCount());
         }
         
         for (Turntable turntable : turntables) {
             if (turntable.isFull()) {
                 onTurntableCount++;
             }
-            // System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
+            System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
         }
         
         System.out.println("Total presents left on machine (Belts and turntables): " + (onBeltCount + onTurntableCount));
@@ -359,6 +361,7 @@ public class Machine {
         
         for (Sack sack : sacks) {
             totalInSacks += sack.getCount();
+            System.out.println("Sack ID: " + sack.getId() + ". Count: " + sack.getCount());
         }
         System.out.println("Total in sacks: " + totalInSacks);
         

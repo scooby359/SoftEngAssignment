@@ -35,7 +35,7 @@ public class Hopper implements Runnable {
         long startTime = System.currentTimeMillis();
         
         // Check presents being released in correct order
-        System.out.println("Releasing present: " + presents[presentsReleased].getGroup());
+        // System.out.println("Releasing present: " + presents[presentsReleased].getGroup());
         
         // Try to add present to belt
         receiverBelt.addPresent(presents[presentsReleased]);
