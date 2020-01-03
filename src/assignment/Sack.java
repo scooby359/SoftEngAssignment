@@ -19,8 +19,7 @@ public class Sack extends ConnectionInterface {
     private int count = 0;
     private AgeGroup ageGroup;
     private Present[] presents;
-    private Semaphore mutex = new Semaphore(1);
-    
+
     public Sack(int id, int capacity, AgeGroup ageGroup) {
         this.id = id;
         this.capacity = capacity;
@@ -31,34 +30,19 @@ public class Sack extends ConnectionInterface {
     public Boolean isFull() {
         return count == capacity;
     }
-    
+
     public AgeGroup getAgeGroup() {
         return this.ageGroup;
     }
-    
+
     public int getId() {
         return this.id;
     }
 
     @Override
     public void addPresent(Present present) {
-        try {
-            // Get mutex - TODO - shouldn't be required, only one turntable is 
-            // connected so can't be overwrites
-            mutex.acquire();
-            
-            // CRITICAL ZONE
-            // Add present to sack
-            presents[count] = present;
-            count++;
-            
-            // System.out.println("Sack " + id + " received present. New count: " + count);
-            
-            // Release mutex
-            mutex.release();
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+        presents[count] = present;
+        count++;
     }
 
     int getCount() {

@@ -27,7 +27,6 @@ public class Turntable implements Runnable {
     // Variables for configuration
     private String id;
     private Boolean isActive = true;    // For overall control of thread
-    private Boolean beltsEmpty = false; // Allows safe shutdown when belt clear
     private Present present;
     private String currentAlignment = EAST_WEST;
     private TurntableConnector[] inputBelts = new TurntableConnector[4];
@@ -164,9 +163,6 @@ public class Turntable implements Runnable {
 
             }
         }
-
-        // Update belt empty status to allow safe shutdown when belts clear
-        beltsEmpty = beltLoopEmpty;
     }
 
     public Boolean isFull() {
@@ -183,7 +179,8 @@ public class Turntable implements Runnable {
 
     private void alignTurntable(TurntableConnector connection) {
         Boolean isAligned;
-
+        
+        // Checks current alignment to given connection
         if (connection == allConnections[NORTH] || connection == allConnections[SOUTH]) {
             isAligned = currentAlignment.equals(NORTH_SOUTH);
         } else {
