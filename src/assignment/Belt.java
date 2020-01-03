@@ -32,12 +32,14 @@ public class Belt extends ConnectionInterface {
     
     @Override
     public void addPresent(Present present) {
+        System.out.println("Belt: called addPresent");
         try {
             // Wait till free slot
             numFree.acquire();
-            
+            System.out.println("Belt: addPresent numFree acquired");
             // Wait till mutex available
             mutex.acquire();
+            System.out.println("Belt: addPresent mutex acquired");
             
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -49,19 +51,23 @@ public class Belt extends ConnectionInterface {
         
         // Release number of available slots
         numAvail.release();
+        System.out.println("Belt: addPresent numAvail released");
         
         // Release mutex
         mutex.release();
+        System.out.println("Belt: addPresent mutex released");
     }
     
     @Override
     public Present removePresent() {
-        
+        System.out.println("Belt: removePresent called");
         try {
             // check something available to remove
             numAvail.acquire();
+            System.out.println("Belt: removePresent numAvail acquired");
             // Get mutex
             mutex.acquire();
+            System.out.println("Belt: removePresent mutex acquired");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -71,9 +77,11 @@ public class Belt extends ConnectionInterface {
         
         // Signal free space
         numFree.release();
+        System.out.println("Belt: removePresent numFree released");
         
         // Release mutex
         mutex.release();
+        System.out.println("Belt: removePresent mutex released");
         
         return removedPresent;
     }
@@ -125,7 +133,7 @@ public class Belt extends ConnectionInterface {
             }
             
             // Can't shuffle anything to last place, so just set to null
-            presents[beltLength] = null;
+            presents[beltLength-1] = null;
         }
         
         // Decrement present counter
@@ -138,5 +146,10 @@ public class Belt extends ConnectionInterface {
     @Override
     public Boolean checkPresentAvailable() {
         return !isEmpty();
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
     }
 }

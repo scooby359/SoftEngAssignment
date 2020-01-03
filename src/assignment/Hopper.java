@@ -55,6 +55,10 @@ public class Hopper implements Runnable {
         }
     }
 
+    public void switchOff() {
+        this.isActive = false;
+    }
+
     int getRemainingPresentCount() {
         return startingPresentCount - presentsReleased;
     }
@@ -64,7 +68,8 @@ public class Hopper implements Runnable {
     }
 
     @Override
-    public void run() {   
+    public void run() {
+        System.out.println("Hopper run");
         do {
             try {
                 Thread.sleep(speed);

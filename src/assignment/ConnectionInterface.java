@@ -35,7 +35,7 @@ public abstract class ConnectionInterface {
      * Gets object id
      * @return int
      */
-    public int getId();
+    public abstract int getId();
     
     /**
      * Returns if object is a sack type

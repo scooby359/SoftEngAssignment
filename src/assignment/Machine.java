@@ -13,6 +13,8 @@ import assignment.ConfigFileReader.SackConfig;
 import assignment.ConfigFileReader.TurntableConfig;
 import assignment.Present.AgeGroup;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,8 +26,10 @@ public class Machine {
     Belt[] belts;
     Turntable[] turntables;
     Sack[] sacks;
+    Thread[] threads;
 
-    int sessionLength;
+
+    long sessionLength;
     long startTime;
     long endTime;
     long finishTime;
@@ -42,7 +46,7 @@ public class Machine {
         sacks = new Sack[config.sacks.size()];
 
         // Declare machine run time
-        sessionLength = config.timer;
+        sessionLength = config.timer * 1000;
 
         // Temp arrays to track sack target groups
         ArrayList<Integer> zero_three = new ArrayList<>();
@@ -89,7 +93,7 @@ public class Machine {
             Present[] presents = new Present[configPresent.ages.length];
             for (int j = 0; j < configPresent.ages.length; j++) {
                 Present newPresent = new Present(configPresent.ages[j]);
-                
+
                 // Set present target list
                 switch (newPresent.getGroup()) {
                     case ZEROTOTHREE:
@@ -156,7 +160,7 @@ public class Machine {
         for (int i = 0; i < config.turntables.size(); i++) {
 
             TurntableConfig configTurntable = config.turntables.get(i);
-            
+
             // Check each turntable direction
             TurntableConnector north = setupPort(configTurntable.north, belts, sacks);
             TurntableConnector east = setupPort(configTurntable.east, belts, sacks);
@@ -165,6 +169,21 @@ public class Machine {
 
             turntables[i] = new Turntable(configTurntable.id, north, east, south, west);
         }
+
+        // Setup threads
+        int totalThreads = hoppers.length + turntables.length;
+        int currentThread = 0;
+        threads = new Thread[totalThreads];
+
+        for (Hopper hopper : hoppers) {
+            threads[currentThread] = new Thread(hopper);
+            currentThread++;
+        }
+
+        for (Turntable turntable : turntables) {
+            threads[currentThread] = new Thread(turntable);
+            currentThread++;
+        }
     }
 
     private TurntableConnector setupPort(String config, Belt[] belts, Sack[] sacks) {
@@ -172,51 +191,50 @@ public class Machine {
         if (config.equals("null")) {
             return null;
         }
-        
+
         int targetId = Integer.parseInt(config.substring(3));
         ConnectionInterface port = null;
         Boolean input = false;
-        
-        
+
         // Find input belt
         if (config.startsWith("ib")) {
             input = true;
-            for (Belt belt: belts) {
+            for (Belt belt : belts) {
                 if (belt.id == targetId) {
                     port = belt;
                     break;
                 }
             }
         }
-        
+
         // Find output belt
         if (config.startsWith("ob")) {
-            for (Belt belt: belts) {
+            for (Belt belt : belts) {
                 if (belt.id == targetId) {
                     port = belt;
                     break;
                 }
             }
         }
-        
+
         // Find output sack
         if (config.startsWith("os")) {
-            for (Sack sack: sacks) {
+            for (Sack sack : sacks) {
                 if (sack.id == targetId) {
                     port = sack;
                     break;
                 }
             }
         }
-        
+
         // Safety check to ensure all set
-        if (port  == null) {
+        if (port == null) {
             throw new IllegalStateException("Port not recognised");
         }
-        
+
         return new TurntableConnector(port, input);
     }
-    
+
     private int[] convertIntegers(ArrayList<Integer> input) {
         int[] ret = new int[input.size()];
         for (int i = 0; i < ret.length; i++) {
@@ -226,14 +244,27 @@ public class Machine {
     }
 
     public void start() {
-        // Call from main function to start machine running
-        // Should call all threaded objects to run
-
-        for (Hopper hopper : hoppers) {
-            hopper.run();
+        // Switch all threads on
+        for (Thread thread : threads) {
+            thread.start();
         }
-
-        // TODO - start all other threaded objects
+        
+        try {
+            // Let session length run
+            Thread.sleep(sessionLength);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Machine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        // Stop all threads
+        for (Hopper hopper : hoppers) {
+            hopper.switchOff();
+        }
+        for (Turntable turntable : turntables) {
+            turntable.switchOff();
+        }
+        
+        System.out.println("All threads switched off");
     }
 
     void logStart() {

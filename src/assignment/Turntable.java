@@ -71,6 +71,7 @@ public class Turntable implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Turntable run");
         do {
             checkForInput();
         } while (isActive);
@@ -90,7 +91,7 @@ public class Turntable implements Runnable {
                 }
                 
                 // Delay to get present
-                movePresent();
+                movePresentDelay();
                 
                 // Move present onto turntable (remove from belt)
                 present = connector.port.removePresent();
@@ -106,9 +107,29 @@ public class Turntable implements Runnable {
                         // Get target sack ID
                         int outputSackId = outputSack.port.getId();
                         
-                        // Now check if present can go to that output sack
+                        // Check if present can go to that sack
                         for (int targetSack : destinationSacks) {
-                            if (targetSack == )
+                            if (targetSack == outputSack.port.getId()) {
+
+                                // Check if space available
+                                if (!outputSack.port.isFull()) {
+                                    // Found suitable destination
+                                    destination = outputSack;
+                                    
+                                    // Check if aligned
+                                    if (!isAligned(destination)) {
+                                        turnTurntable();
+                                    };
+                                    
+                                    // Move present to receiver
+                                    destination.port.addPresent(present);
+                                    
+                                    // TODO - should return a boolean so we know if it worked
+                                    
+                                    // Assume present has moved, so clear out holder
+                                    present = null;
+                                }
+                            }
                         }
                     }
                 }
@@ -130,7 +151,7 @@ public class Turntable implements Runnable {
         return present != null;
     }
 
-    private void movePresent() {
+    private void movePresentDelay() {
         try {
             Thread.sleep(MOVE_SPEED);
         } catch (InterruptedException ex) {
@@ -157,5 +178,9 @@ public class Turntable implements Runnable {
         } else {
             return currentAlignment.equals(EAST_WEST);
         }
+    }
+    
+    public void switchOff() {
+        this.isActive = false;
     }
 }
