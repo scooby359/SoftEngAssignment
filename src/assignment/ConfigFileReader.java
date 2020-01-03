@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class ConfigFileReader {
 
-    String configName = "config_basic.txt";
+    String configName = "config_basic_2.txt";
     // String configName = "config.txt";
 
     /**

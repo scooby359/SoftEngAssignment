@@ -80,33 +80,30 @@ public class Turntable implements Runnable {
     private void checkForInput() {
         // Loop through input connections
         for (TurntableConnector connector : inputBelts) {
-            
+
             // Check if input available
             if (connector != null && connector.port.checkPresentAvailable()) {
-        
+
                 // Check if in alignment
-                if (!isAligned(connector)) {
-                    // Turn turntable
-                    turnTurntable();
-                }
-                
+                alignTurntable(connector);
+
                 // Delay to get present
                 movePresentDelay();
-                
+
                 // Move present onto turntable (remove from belt)
                 present = connector.port.removePresent();
-                
+
                 // Get list of destination sack IDs
                 int[] destinationSacks = present.getTargetSacks();
                 TurntableConnector destination;
-                
+
                 // Loop through output sacks to check if found
                 for (TurntableConnector outputSack : outputSacks) {
                     if (outputSack != null) {
-                        
+
                         // Get target sack ID
                         int outputSackId = outputSack.port.getId();
-                        
+
                         // Check if present can go to that sack
                         for (int targetSack : destinationSacks) {
                             if (targetSack == outputSack.port.getId()) {
@@ -115,15 +112,14 @@ public class Turntable implements Runnable {
                                 if (!outputSack.port.isFull()) {
                                     // Found suitable destination
                                     destination = outputSack;
-                                    
+
                                     // Check if aligned
-                                    if (!isAligned(destination)) {
-                                        turnTurntable();
-                                    };
-                                    
+                                    alignTurntable(destination);
+
                                     // Move present to receiver
                                     destination.port.addPresent(present);
-                                    
+                                    movePresentDelay();
+
                                     // TODO - should return a boolean so we know if it worked
                                     
                                     // Assume present has moved, so clear out holder
@@ -133,12 +129,9 @@ public class Turntable implements Runnable {
                         }
                     }
                 }
-                
-        }
 
-            
-            
-            
+            }
+
             // Else find destination belt
             // Check if in alignment
             // Turn turntable
@@ -159,27 +152,28 @@ public class Turntable implements Runnable {
         }
     }
 
-    private void turnTurntable() {
-        // Sleep for required time
-        System.out.println("Turntable " + id + "turning..");
-        try {
-            Thread.sleep(TURN_SPEED);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-
-        // Update new alignment
-        currentAlignment = currentAlignment.equals(EAST_WEST) ? NORTH_SOUTH : EAST_WEST;
-    }
-
-    private Boolean isAligned(TurntableConnector connection) {
+    private void alignTurntable(TurntableConnector connection) {
+        Boolean isAligned;
+        
         if (connection == allConnections[NORTH] || connection == allConnections[SOUTH]) {
-            return currentAlignment.equals(NORTH_SOUTH);
+            isAligned = currentAlignment.equals(NORTH_SOUTH);
         } else {
-            return currentAlignment.equals(EAST_WEST);
+            isAligned = currentAlignment.equals(EAST_WEST);
+        }
+        
+        if (!isAligned) {
+            System.out.println("Turntable " + id + "turning..");
+            try {
+                Thread.sleep(TURN_SPEED);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+
+            // Update new alignment
+            currentAlignment = currentAlignment.equals(EAST_WEST) ? NORTH_SOUTH : EAST_WEST;
         }
     }
-    
+
     public void switchOff() {
         this.isActive = false;
     }
