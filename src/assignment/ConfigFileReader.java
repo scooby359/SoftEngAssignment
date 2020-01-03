@@ -12,11 +12,11 @@ import java.util.ArrayList;
 
 /**
  *
- * @author cewalton // TODO - parse TIMER, return everything to machine to build
+ * @author cewalton
  */
 public class ConfigFileReader {
 
-    String configName;
+    private String configName;
 
     public ConfigFileReader(String configName) {
         this.configName = configName;

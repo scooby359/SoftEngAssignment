@@ -14,12 +14,12 @@ import java.util.concurrent.Semaphore;
  */
 public class Sack extends ConnectionInterface {
 
-    int id;
-    int capacity;
-    int count = 0;
-    AgeGroup ageGroup;
-    Present[] presents;
-    Semaphore mutex = new Semaphore(1);
+    private int id;
+    private int capacity;
+    private int count = 0;
+    private AgeGroup ageGroup;
+    private Present[] presents;
+    private Semaphore mutex = new Semaphore(1);
     
     public Sack(int id, int capacity, AgeGroup ageGroup) {
         this.id = id;
@@ -43,14 +43,16 @@ public class Sack extends ConnectionInterface {
     @Override
     public void addPresent(Present present) {
         try {
-            // Get mutex
+            // Get mutex - TODO - shouldn't be required, only one turntable is 
+            // connected so can't be overwrites
             mutex.acquire();
             
+            // CRITICAL ZONE
             // Add present to sack
             presents[count] = present;
             count++;
             
-            System.out.println("Sack " + id + " received present. New count: " + count);
+            // System.out.println("Sack " + id + " received present. New count: " + count);
             
             // Release mutex
             mutex.release();

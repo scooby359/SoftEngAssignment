@@ -6,7 +6,7 @@
 package assignment;
 
 /**
- *
+ *  Connecting object used in turntable config to allow defining if port is an input
  * @author Chris
  */
   public class TurntableConnector {

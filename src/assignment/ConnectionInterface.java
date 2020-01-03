@@ -6,7 +6,7 @@
 package assignment;
 
 /**
- *
+ * Used as interface for all connecting objects, allows consistency in function calls regardless of connection instance type in configurable setup
  * @author Chris
  */
 public abstract class ConnectionInterface {
@@ -50,4 +50,8 @@ public abstract class ConnectionInterface {
      * @return Boolean
      */
     public abstract Boolean isFull();
+    
+    public int[] getDestinations() {
+        return new int[0];
+    }
 }

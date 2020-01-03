@@ -6,7 +6,7 @@
 package assignment;
 
 /**
- *
+ * Used for setting up machine config to match present sack to hopper
  * @author Chris
  */
 public class HopperInput {

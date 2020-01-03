@@ -15,6 +15,7 @@ public class Belt extends ConnectionInterface {
 
     private int id;
     private Present[] presents;
+    private int[] destinations;
     private int beltLength = 0;
     private int presentCount = 0;
 
@@ -22,13 +23,14 @@ public class Belt extends ConnectionInterface {
     private Semaphore numAvail = new Semaphore(0);
     private Semaphore numFree;
 
-    public Belt(int id, int beltLength) {
+    public Belt(int id, int beltLength, int[] destinations) {
         this.id = id;
         this.beltLength = beltLength;
+        this.destinations = destinations;
         presents = new Present[this.beltLength];
         numFree = new Semaphore(beltLength);
 
-        System.out.println("Belt id " + id + " length " + beltLength);
+        // System.out.println("Belt id " + id + " length " + beltLength);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class Belt extends ConnectionInterface {
         presents[presentCount] = present;
         presentCount++;
 
-        System.out.println("Belt " + this.id + " received present");
+        // System.out.println("Belt " + this.id + " received present");
 
         // Release number of available slots
         numAvail.release();
@@ -134,4 +136,9 @@ public class Belt extends ConnectionInterface {
      public int getPresentCount() {
         return presentCount;
     }
+     
+     @Override
+     public int[] getDestinations() {
+         return this.destinations;
+     }
 }

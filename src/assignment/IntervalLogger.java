@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Thread for interval logging throughout machine run time
  * @author Chris
  */
 public class IntervalLogger implements Runnable {

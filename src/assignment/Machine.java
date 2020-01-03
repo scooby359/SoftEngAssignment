@@ -12,14 +12,10 @@ import assignment.ConfigFileReader.PresentConfig;
 import assignment.ConfigFileReader.SackConfig;
 import assignment.ConfigFileReader.TurntableConfig;
 import assignment.Present.AgeGroup;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
+ * Parent machine - mostly just construction of objects, also threads for run time and logging
  * @author cewalton
  */
 public class Machine {
@@ -35,7 +31,6 @@ public class Machine {
     long startTime;
     long endTime;
     long finishTime;
-    SimpleDateFormat timeFormatter = new SimpleDateFormat("H'h':m'm':s's'");
 
     public Machine(MachineConfig config, String configFile) {
         HopperInput[] hopperInputs;
@@ -50,7 +45,7 @@ public class Machine {
         turntables = new Turntable[config.turntables.size()];
         sacks = new Sack[config.sacks.size()];
 
-        // Declare machine run time
+        // Declare machine run time - convert seconds to milliseconds
         sessionLength = config.timer * 1000;
 
         // Temp arrays to track sack target groups
@@ -130,7 +125,7 @@ public class Machine {
             BeltConfig configBelt = config.belts.get(i);
 
             // TODO - Need to do something with the destinations
-            belts[i] = new Belt(configBelt.id, configBelt.length);
+            belts[i] = new Belt(configBelt.id, configBelt.length, configBelt.destinations);
         }
 
         // Setup hoppers
@@ -225,7 +220,7 @@ public class Machine {
         // Find output sack
         if (config.startsWith("os")) {
             for (Sack sack : sacks) {
-                if (sack.id == targetId) {
+                if (sack.getId() == targetId) {
                     port = sack;
                     break;
                 }
@@ -241,6 +236,7 @@ public class Machine {
     }
 
     private int[] convertIntegers(ArrayList<Integer> input) {
+        // Config uses Integer object, need to convert to int primitive
         int[] ret = new int[input.size()];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = input.get(i);
@@ -250,12 +246,12 @@ public class Machine {
 
     public void runMachine() {
 
-        // Switch all threads on
+        // Start all threads
         for (Thread thread : threads) {
             thread.start();
         }
         
-        // Set start time
+        // Set machine start time
         startTime = System.currentTimeMillis();
         logOutput("Machine Started");
 
@@ -269,7 +265,7 @@ public class Machine {
         try {
             Thread.sleep(sessionLength);
         } catch (InterruptedException ex) {
-            Logger.getLogger(Machine.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
 
         // Stop all input hoppers after session length complete
@@ -278,7 +274,8 @@ public class Machine {
         }
         logOutput("Input stopped");
 
-        // Send stop indicator to all turntables
+        // Send stop indicator to all turntables 
+        // - will continue to run until inputs clear
         for (Turntable turntable : turntables) {
             turntable.switchOff();
         }
@@ -303,6 +300,8 @@ public class Machine {
 
     private void logOutput(String input) {
 
+        // Convenience function - outputs time in required format 
+        
         long different = System.currentTimeMillis() - startTime;
 
         long secondsInMilli = 1000;

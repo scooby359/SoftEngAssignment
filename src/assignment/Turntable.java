@@ -49,9 +49,8 @@ public class Turntable implements Runnable {
                 // Check if sack
                 if (allConnections[i].port.isSack()) {
                     outputSacks[i] = allConnections[i];
-                }
-                // Check if input belt
-                if (allConnections[i].input) {
+                } // Check if input belt
+                else if (allConnections[i].input) {
                     inputBelts[i] = allConnections[i];
                 } else {
                     outputBelts[i] = allConnections[i];
@@ -62,26 +61,29 @@ public class Turntable implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Turntable run");
+        // System.out.println("Turntable run");
         do {
             checkForInput();
         } while (isActive || !beltsEmpty);
     }
 
     private void checkForInput() {
-                
+
         // Indicate if belt is empty
         Boolean beltLoopEmpty = true;
-        
+
         // Loop through input connections
         for (TurntableConnector connector : inputBelts) {
+
+            // Declare where present will go
+            TurntableConnector destination = null;
 
             // Check if input available
             if (connector != null && connector.port.checkPresentAvailable()) {
 
                 // Update belt flag
                 beltLoopEmpty = false;
-                
+
                 // Check if in alignment
                 alignTurntable(connector);
 
@@ -93,11 +95,16 @@ public class Turntable implements Runnable {
 
                 // Get list of destination sack IDs
                 int[] destinationSacks = present.getTargetSacks();
-                TurntableConnector destination;
 
+                // --------------
+                // Figure out where to put present
+                // --------------
                 // Loop through output sacks to check if found
                 for (TurntableConnector outputSack : outputSacks) {
-                    if (outputSack != null) {
+
+                    // Make sure sack is connected and 
+                    // we haven't already found a suitable sack
+                    if (outputSack != null && destination == null) {
 
                         // Check if present can go to that sack
                         for (int targetSack : destinationSacks) {
@@ -107,33 +114,57 @@ public class Turntable implements Runnable {
                                 if (!outputSack.port.isFull()) {
                                     // Found suitable destination
                                     destination = outputSack;
-
-                                    // Check if aligned
-                                    alignTurntable(destination);
-
-                                    // Move present to receiver
-                                    destination.port.addPresent(present);
-                                    movePresentDelay();
-
-                                    // TODO - should return a boolean so we know if it worked
-                                    
-                                    // Assume present has moved, so clear out holder
-                                    present = null;
                                 }
                             }
                         }
                     }
                 }
 
-            }
+                // Suitable sack not found - look at belts instead
+                if (destination == null) {
 
-            // Else find destination belt
-            // Check if in alignment
-            // Turn turntable
-            // Move present
-            // Add to destination connection
+                    // For each output belt
+                    for (TurntableConnector outputBelt : outputBelts) {
+
+                        // Check belt is connected and
+                        // we haven't already found a destination
+                        if (outputBelt != null && destination == null) {
+
+                            // Get belt destinations
+                            int[] beltDestinations = outputBelt.port.getDestinations();
+
+                            // Check if any of targetDestinations 
+                            // exist in beltDestinations
+                            for (int destinationSack : destinationSacks) {
+                                for (int beltDestination : beltDestinations) {
+                                    if (destinationSack == beltDestination) {
+                                        destination = outputBelt;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Safety check that a destination has been found
+                if (destination == null) {
+                    System.out.println("***TURNTABLE ID: " + this.id + "***");
+                    throw new IllegalStateException("Suitable output not found");
+                }
+
+                // Check if aligned to destination
+                alignTurntable(destination);
+
+                // Move present to receiver
+                destination.port.addPresent(present);
+                movePresentDelay();
+
+                // Present has gone so clear local holder
+                present = null;
+
+            }
         }
-        
+
         // Update belt empty status to allow safe shutdown when belts clear
         beltsEmpty = beltLoopEmpty;
     }
@@ -152,15 +183,15 @@ public class Turntable implements Runnable {
 
     private void alignTurntable(TurntableConnector connection) {
         Boolean isAligned;
-        
+
         if (connection == allConnections[NORTH] || connection == allConnections[SOUTH]) {
             isAligned = currentAlignment.equals(NORTH_SOUTH);
         } else {
             isAligned = currentAlignment.equals(EAST_WEST);
         }
-        
+
         if (!isAligned) {
-            System.out.println("Turntable " + id + " turning..");
+            // System.out.println("Turntable " + id + " turning..");
             try {
                 Thread.sleep(TURN_SPEED);
             } catch (InterruptedException ex) {

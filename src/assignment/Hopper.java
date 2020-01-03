@@ -5,23 +5,20 @@
  */
 package assignment;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author cewalton
  */
 public class Hopper implements Runnable {
 
-    int id;
-    Present[] presents;
-    boolean isActive = true;
-    Belt receiverBelt;
-    long speed;
-    long waitingTime = 0;
-    int startingPresentCount;
-    int presentsReleased = 0;
+    private int id;
+    private Present[] presents;
+    private boolean isActive = true;
+    private Belt receiverBelt;
+    private long speed;
+    private long waitingTime = 0;
+    private int startingPresentCount;
+    private int presentsReleased = 0;
 
     public Hopper(int id, Present[] presents, long speed, Belt receiverBelt) {
         this.id = id;
@@ -32,10 +29,13 @@ public class Hopper implements Runnable {
     }
 
     void relasePresent() {
-        System.out.println("Hopper " + this.id + " releasing present");
+        // System.out.println("Hopper " + this.id + " releasing present");
         
         // Capture start time to track how long spent waiting
         long startTime = System.currentTimeMillis();
+        
+        // Check presents being released in correct order
+        System.out.println("Releasing present: " + presents[presentsReleased].getGroup());
         
         // Try to add present to belt
         receiverBelt.addPresent(presents[presentsReleased]);
@@ -69,7 +69,7 @@ public class Hopper implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Hopper run");
+        // System.out.println("Hopper run");
         do {
             try {
                 Thread.sleep(speed);
