@@ -13,6 +13,8 @@ import assignment.ConfigFileReader.SackConfig;
 import assignment.ConfigFileReader.TurntableConfig;
 import assignment.Present.AgeGroup;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Parent machine - mostly just construction of objects, also threads for run time and logging
@@ -253,7 +255,7 @@ public class Machine {
         
         // Set machine start time
         startTime = System.currentTimeMillis();
-        logOutput("Machine Started");
+        logOutput("Machine Started", false);
 
         // Create and run interval logger
         IntervalLogger intervalLogger = 
@@ -272,9 +274,30 @@ public class Machine {
         for (Hopper hopper : hoppers) {
             hopper.switchOff();
         }
-        logOutput("Input stopped");
-
-        printSummary();
+        logOutput("Input stopped", false);
+        
+        // Poll belts to check if all clear - 30 secs max
+        for (int i = 0; i < 30; i++) {
+            Boolean beltsClear = true;
+            
+            // Check if all belts clear
+            for (Belt belt : belts) {
+                if (!belt.isEmpty())
+                    beltsClear = false;
+            }
+            
+            // Early return if possible
+            if (beltsClear) {
+                break;
+            }
+            
+            // Else sleep and try again
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
         
         // Send stop indicator to all turntables 
         // - will continue to run until inputs clear
@@ -291,20 +314,22 @@ public class Machine {
             }
         }
         
+        endTime = System.currentTimeMillis();
+        
         // Stop interval logger
         intervalLogger.switchOff();
 
         // All threads complete - machine shutdown
-        endTime = System.currentTimeMillis();
-        logOutput("Machine shutdown");
+        logOutput("Machine shutdown", false);
         printSummary();
     }
 
-    private void logOutput(String input) {
+    private void logOutput(String input, Boolean finalLog) {
 
         // Convenience function - outputs time in required format 
         
-        long different = System.currentTimeMillis() - startTime;
+        long endCalcTime = finalLog ? endTime : System.currentTimeMillis();
+        long different = endCalcTime - startTime;
 
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
@@ -334,20 +359,20 @@ public class Machine {
         System.out.println("");
         System.out.println("*** Summary Report ***");
         System.out.println("Config file: " + this.configFileName);
-        logOutput("Total run time");
+        logOutput("Total run time", true);
         
         
         // Get counts of presents left on machine
         for (Belt belt : belts) {
             onBeltCount += belt.getPresentCount();
-            System.out.println("- Belt ID: " + belt.getId() + ". Presents on belt: " + belt.getPresentCount());
+            // System.out.println("- Belt ID: " + belt.getId() + ". Presents on belt: " + belt.getPresentCount());
         }
         
         for (Turntable turntable : turntables) {
             if (turntable.isFull()) {
                 onTurntableCount++;
             }
-            System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
+            // System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
         }
         
         System.out.println("Total presents left on machine (Belts and turntables): " + (onBeltCount + onTurntableCount));
@@ -361,9 +386,9 @@ public class Machine {
         
         for (Sack sack : sacks) {
             totalInSacks += sack.getCount();
-            System.out.println("Sack ID: " + sack.getId() + ". Count: " + sack.getCount());
+            // System.out.println("Sack ID: " + sack.getId() + ". Count: " + sack.getCount());
         }
-        System.out.println("Total in sacks: " + totalInSacks);
+        // System.out.println("Total in sacks: " + totalInSacks);
         
         difference = totalInput - (totalInSacks + onBeltCount + onTurntableCount + totalInHoppers);
         System.out.println("Total of inputs - (total in sacks , belts, turntables and hoppers) = " + difference);

@@ -64,7 +64,7 @@ public class Turntable implements Runnable {
         // System.out.println("Turntable run");
         do {
             checkForInput();
-        } while (isActive || !beltsEmpty);
+        } while (isActive);
     }
 
     private void checkForInput() {

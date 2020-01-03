@@ -63,19 +63,19 @@ public class IntervalLogger implements Runnable {
 
     private void logOutput(String input) {
         // Format elapsed time at interval to required format and log message
-        long different = System.currentTimeMillis() - startTime;
+        long runTime = System.currentTimeMillis() - startTime;
 
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
         long hoursInMilli = minutesInMilli * 60;
 
-        long elapsedHours = different / hoursInMilli;
-        different = different % hoursInMilli;
+        long elapsedHours = runTime / hoursInMilli;
+        runTime = runTime % hoursInMilli;
 
-        long elapsedMinutes = different / minutesInMilli;
-        different = different % minutesInMilli;
+        long elapsedMinutes = runTime / minutesInMilli;
+        runTime = runTime % minutesInMilli;
 
-        long elapsedSeconds = different / secondsInMilli;
+        long elapsedSeconds = runTime / secondsInMilli;
 
         System.out.println("" + elapsedHours + "h:" + elapsedMinutes + "m:" + elapsedSeconds + "s - " + input);
     }
