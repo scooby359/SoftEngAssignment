@@ -80,4 +80,24 @@ public class Hopper implements Runnable {
         } while (isActive);
     }
 
+    public String getFinalSummary() {
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+
+        long different = this.waitingTime;
+        
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+
+        long elapsedSeconds = different / secondsInMilli;
+        
+        String waitTime = "" + elapsedHours + "h:" + elapsedMinutes + "m:" + elapsedSeconds + "s";
+        
+        String summary = "Hopper ID: " + this.id + ". Total presents released: " + this.presentsReleased + ". Total wait time: " + waitTime;
+        return summary;
+    }
 }

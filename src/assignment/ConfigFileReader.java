@@ -16,8 +16,11 @@ import java.util.ArrayList;
  */
 public class ConfigFileReader {
 
-    String configName = "config_basic_2.txt";
-    // String configName = "config.txt";
+    String configName;
+
+    public ConfigFileReader(String configName) {
+        this.configName = configName;
+    }
 
     /**
      * The belt configuration

@@ -13,13 +13,14 @@ import java.util.concurrent.Semaphore;
  */
 public class Belt extends ConnectionInterface {
 
-    int id;
-    Present[] presents;
-    int beltLength = 0;
-    int presentCount = 0;
-    Semaphore mutex = new Semaphore(1);
-    Semaphore numAvail = new Semaphore(0);
-    Semaphore numFree;
+    private int id;
+    private Present[] presents;
+    private int beltLength = 0;
+    private int presentCount = 0;
+
+    private Semaphore mutex = new Semaphore(1);
+    private Semaphore numAvail = new Semaphore(0);
+    private Semaphore numFree;
 
     public Belt(int id, int beltLength) {
         this.id = id;
@@ -128,5 +129,9 @@ public class Belt extends ConnectionInterface {
     @Override
     public int getId() {
         return this.id;
+    }
+    
+     public int getPresentCount() {
+        return presentCount;
     }
 }

@@ -19,15 +19,14 @@ public class Assignment {
     public static void main(String[] args) {
         
         // Read config file in
-        ConfigFileReader fileReader = new ConfigFileReader();
+        String configFile = "config_basic_1.txt";
+        ConfigFileReader fileReader = new ConfigFileReader(configFile);
         MachineConfig config = fileReader.readFile();
         
-        // Create machine and start running
-        Machine machine = new Machine(config);
-        machine.start();
+        // Create machine and runMachine running
+        Machine machine = new Machine(config, configFile);
+        machine.runMachine();
      
-        
-        System.out.println("assignment.Assignment.main()");
-    }
+        }
     
 }

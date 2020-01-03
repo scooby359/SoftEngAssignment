@@ -13,36 +13,27 @@ import assignment.Present.AgeGroup;
  */
 public class Turntable implements Runnable {
 
-    /*
-                =============================================
-                CHANGE STRUCTURE - 
-                - On Turntable loop, check array of sacks, if exist in gifts potential targets, check if !full, then try and push
-                - Else, try next sack.. continue
-                - Else, check array of belts if target, push
-                -- if belt full, should check next and continue to loop round belts until succeed?
-         
-                =============================================
-     */
-    // Delay for moving present
-    // Pass to receiver
+    // Set up constants
     final int NORTH = 0;
     final int EAST = 1;
     final int SOUTH = 2;
     final int WEST = 3;
 
-    long TURN_SPEED = 500;
-    long MOVE_SPEED = 750;
-    String NORTH_SOUTH = "ns";
-    String EAST_WEST = "es";
+    final long TURN_SPEED = 500;
+    final long MOVE_SPEED = 750;
+    final String NORTH_SOUTH = "ns";
+    final String EAST_WEST = "es";
 
-    String id;
-    Boolean isActive = true;
-    Present present;
-    String currentAlignment = EAST_WEST;
-    TurntableConnector[] inputBelts = new TurntableConnector[4];
-    TurntableConnector[] outputBelts = new TurntableConnector[4];
-    TurntableConnector[] outputSacks = new TurntableConnector[4];
-    TurntableConnector[] allConnections;
+    // Variables for configuration
+    private String id;
+    private Boolean isActive = true;    // For overall control of thread
+    private Boolean beltsEmpty = false; // Allows safe shutdown when belt clear
+    private Present present;
+    private String currentAlignment = EAST_WEST;
+    private TurntableConnector[] inputBelts = new TurntableConnector[4];
+    private TurntableConnector[] outputBelts = new TurntableConnector[4];
+    private TurntableConnector[] outputSacks = new TurntableConnector[4];
+    private TurntableConnector[] allConnections;
 
     public Turntable(String id, TurntableConnector north,
             TurntableConnector east, TurntableConnector south,
@@ -74,16 +65,23 @@ public class Turntable implements Runnable {
         System.out.println("Turntable run");
         do {
             checkForInput();
-        } while (isActive);
+        } while (isActive || !beltsEmpty);
     }
 
     private void checkForInput() {
+                
+        // Indicate if belt is empty
+        Boolean beltLoopEmpty = true;
+        
         // Loop through input connections
         for (TurntableConnector connector : inputBelts) {
 
             // Check if input available
             if (connector != null && connector.port.checkPresentAvailable()) {
 
+                // Update belt flag
+                beltLoopEmpty = false;
+                
                 // Check if in alignment
                 alignTurntable(connector);
 
@@ -100,9 +98,6 @@ public class Turntable implements Runnable {
                 // Loop through output sacks to check if found
                 for (TurntableConnector outputSack : outputSacks) {
                     if (outputSack != null) {
-
-                        // Get target sack ID
-                        int outputSackId = outputSack.port.getId();
 
                         // Check if present can go to that sack
                         for (int targetSack : destinationSacks) {
@@ -138,6 +133,9 @@ public class Turntable implements Runnable {
             // Move present
             // Add to destination connection
         }
+        
+        // Update belt empty status to allow safe shutdown when belts clear
+        beltsEmpty = beltLoopEmpty;
     }
 
     public Boolean isFull() {
@@ -162,7 +160,7 @@ public class Turntable implements Runnable {
         }
         
         if (!isAligned) {
-            System.out.println("Turntable " + id + "turning..");
+            System.out.println("Turntable " + id + " turning..");
             try {
                 Thread.sleep(TURN_SPEED);
             } catch (InterruptedException ex) {
@@ -176,5 +174,9 @@ public class Turntable implements Runnable {
 
     public void switchOff() {
         this.isActive = false;
+    }
+
+    public String getId() {
+        return id;
     }
 }
