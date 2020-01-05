@@ -286,6 +286,14 @@ public class Machine {
                     beltsClear = false;
             }
             
+            // Check turntables all clear
+            // Ensures if a present has passed from belt to turntable and still
+            // being processed, we don't shut down early and leave it stranded
+            for (Turntable turntable : turntables) {
+                if (turntable.isFull())
+                    beltsClear = false;
+            }
+            
             // Early return if possible
             if (beltsClear) {
                 break;
