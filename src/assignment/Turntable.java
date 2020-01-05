@@ -148,7 +148,10 @@ public class Turntable implements Runnable {
                 // Safety check that a destination has been found
                 if (destination == null) {
                     System.out.println("***TURNTABLE ID: " + this.id + "***");
-                    throw new IllegalStateException("Suitable output not found");
+                    present = null;
+                    System.out.println("Suitable output not found - disposing present");
+                    return;
+                    // throw new IllegalStateException("Suitable output not found - disposing present");
                 }
 
                 // Check if aligned to destination

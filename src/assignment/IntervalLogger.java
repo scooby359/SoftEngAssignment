@@ -34,15 +34,18 @@ public class IntervalLogger implements Runnable {
             } catch (InterruptedException ex) {
                 ex.printStackTrace();            
             }
-            // Check in case stopped while sleeping
-            if (isActive) {
+            if (isActive)
+            {
                 logInterval();
             }
+            
         } while (isActive);
     }
 
     public void switchOff() {
         isActive = false;
+        // Log final summary immediately
+        logInterval();
     }
 
     void logInterval() {

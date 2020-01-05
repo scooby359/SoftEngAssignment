@@ -17,7 +17,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Parent machine - mostly just construction of objects, also threads for run time and logging
+ * Parent machine - mostly just construction of objects, also threads for run
+ * time and logging
+ *
  * @author cewalton
  */
 public class Machine {
@@ -39,7 +41,7 @@ public class Machine {
 
         // Needed for final summary
         this.configFileName = configFile;
-        
+
         // Initialise arrays to required sizes
         hoppers = new Hopper[config.hoppers.size()];
         hopperInputs = new HopperInput[config.hoppers.size()];
@@ -252,17 +254,17 @@ public class Machine {
         for (Thread thread : threads) {
             thread.start();
         }
-        
+
         // Set machine start time
         startTime = System.currentTimeMillis();
         logOutput("Machine Started", false);
 
         // Create and run interval logger
-        IntervalLogger intervalLogger = 
-                new IntervalLogger(startTime, hoppers, sacks);
+        IntervalLogger intervalLogger
+                = new IntervalLogger(startTime, hoppers, sacks);
         Thread intervalLoggerThread = new Thread(intervalLogger);
         intervalLoggerThread.start();
-        
+
         // Let session length run
         try {
             Thread.sleep(sessionLength);
@@ -276,43 +278,32 @@ public class Machine {
         }
         logOutput("Input stopped", false);
         
-        // Poll belts to check if all clear - 30 secs max
-        for (int i = 0; i < 30; i++) {
-            Boolean beltsClear = true;
+        // Check for safe shutdown - make sure all belts cleared
+        Boolean beltsClear = true;
+        do {
             
-            // Check if all belts clear
+            // Reset for loop
+            beltsClear = true;
+            
+            // Check if each belt clear and update flag if needed
             for (Belt belt : belts) {
-                if (!belt.isEmpty())
+                if (!belt.isEmpty()) {
                     beltsClear = false;
+                }
             }
-            
-            // Check turntables all clear
-            // Ensures if a present has passed from belt to turntable and still
-            // being processed, we don't shut down early and leave it stranded
             for (Turntable turntable : turntables) {
-                if (turntable.isFull())
+                if (turntable.isFull()) {
                     beltsClear = false;
+                }
             }
             
-            // Early return if possible
-            if (beltsClear) {
-                break;
-            }
-            
-            // Else sleep and try again
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        }
+        } while (!beltsClear);
         
         // Send stop indicator to all turntables 
-        // - will continue to run until inputs clear
         for (Turntable turntable : turntables) {
             turntable.switchOff();
         }
-
+        
         // Wait till everything complete
         for (Thread thread : threads) {
             try {
@@ -326,7 +317,7 @@ public class Machine {
         
         // Stop interval logger
         intervalLogger.switchOff();
-
+        
         // All threads complete - machine shutdown
         logOutput("Machine shutdown", false);
         printSummary();
@@ -335,7 +326,6 @@ public class Machine {
     private void logOutput(String input, Boolean finalLog) {
 
         // Convenience function - outputs time in required format 
-        
         long endCalcTime = finalLog ? endTime : System.currentTimeMillis();
         long different = endCalcTime - startTime;
 
@@ -350,12 +340,12 @@ public class Machine {
         different = different % minutesInMilli;
 
         long elapsedSeconds = different / secondsInMilli;
-        
+
         System.out.println("" + elapsedHours + "h:" + elapsedMinutes + "m:" + elapsedSeconds + "s - " + input);
     }
 
     private void printSummary() {
-        
+
         // Initialise counters
         int onBeltCount = 0;
         int onTurntableCount = 0;
@@ -363,41 +353,40 @@ public class Machine {
         int totalInSacks = 0;
         int totalInHoppers = 0;
         int difference = 0;
-        
+
         System.out.println("");
         System.out.println("*** Summary Report ***");
         System.out.println("Config file: " + this.configFileName);
         logOutput("Total run time", true);
-        
-        
+
         // Get counts of presents left on machine
         for (Belt belt : belts) {
             onBeltCount += belt.getPresentCount();
             // System.out.println("- Belt ID: " + belt.getId() + ". Presents on belt: " + belt.getPresentCount());
         }
-        
+
         for (Turntable turntable : turntables) {
             if (turntable.isFull()) {
                 onTurntableCount++;
             }
             // System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
         }
-        
+
         System.out.println("Total presents left on machine (Belts and turntables): " + (onBeltCount + onTurntableCount));
-        
+
         // Get hopper values
         for (Hopper hopper : hoppers) {
             totalInput += hopper.getStartingPresentCount();
             totalInHoppers += hopper.getRemainingPresentCount();
             System.out.println(hopper.getFinalSummary());
         }
-        
+
         for (Sack sack : sacks) {
             totalInSacks += sack.getCount();
             // System.out.println("Sack ID: " + sack.getId() + ". Count: " + sack.getCount());
         }
         // System.out.println("Total in sacks: " + totalInSacks);
-        
+
         difference = totalInput - (totalInSacks + onBeltCount + onTurntableCount + totalInHoppers);
         System.out.println("Total of inputs - (total in sacks , belts, turntables and hoppers) = " + difference);
     }
