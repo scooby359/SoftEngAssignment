@@ -26,7 +26,8 @@ public class Turntable implements Runnable {
 
     // Variables for configuration
     private String id;
-    private Boolean isActive = true;    // For overall control of thread
+    private Boolean isActive = true;
+    private Boolean isBlocked = false;
     private Present present;
     private String currentAlignment = EAST_WEST;
     private TurntableConnector[] inputBelts = new TurntableConnector[4];
@@ -147,11 +148,19 @@ public class Turntable implements Runnable {
 
                 // Safety check that a destination has been found
                 if (destination == null) {
+                    /*
                     System.out.println("***TURNTABLE ID: " + this.id + "***");
                     present = null;
                     System.out.println("Suitable output not found - disposing present");
                     return;
-                    // throw new IllegalStateException("Suitable output not found - disposing present");
+                    */
+                    
+                    System.out.println("***TURNTABLE ID " + this.id + " BLOCKED***");
+                    // Set flags to shutdown turntable and return early
+                    // with present still on turntable
+                    isActive = false;
+                    isBlocked = true;
+                    return;
                 }
 
                 // Check if aligned to destination
@@ -168,7 +177,36 @@ public class Turntable implements Runnable {
         }
     }
 
-    public Boolean isFull() {
+    public Boolean hasStopped() {
+        // Return if stopped due to block or nothing on turntable
+        if (isBlocked) {
+            return true;
+        }
+        else {
+            return present != null;
+        }
+    }
+    
+    public Boolean isBlocked() {
+        return isBlocked;
+    }
+    
+    public Boolean inputsClear() {
+        Boolean isClear = true;
+        
+        // Check all inputs for available 
+        for (TurntableConnector inputBelt : inputBelts) {
+            if (inputBelt != null) {
+                if (inputBelt.port.checkPresentAvailable()) {
+                    isClear = false;
+                }
+            }
+        }
+        return isClear;
+    }
+    
+    public Boolean hasPresent() {
+        // Return if there is a present on the turntable
         return present != null;
     }
 

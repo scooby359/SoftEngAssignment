@@ -74,7 +74,11 @@ public class Hopper implements Runnable {
             try {
                 Thread.sleep(speed);
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                // Handle early shutdown by machine
+                // Make sure we don't loop again
+                isActive = false;
+                // Return with releasing present
+                return;
             }
             this.relasePresent();
         } while (isActive);

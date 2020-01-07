@@ -42,7 +42,8 @@ public class Belt extends ConnectionInterface {
             // Wait till mutex available
             mutex.acquire();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("belt addPresent interrupt caught");
+            return;
         }
 
         // CRITICAL CODE
@@ -74,7 +75,7 @@ public class Belt extends ConnectionInterface {
             mutex.acquire();
 
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            return null;
         }
 
         // CRITICAL CODE

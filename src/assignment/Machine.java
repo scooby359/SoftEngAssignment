@@ -278,40 +278,59 @@ public class Machine {
         }
         logOutput("Input stopped", false);
         
-        // Check for safe shutdown - make sure all belts cleared
-        Boolean beltsClear = true;
+        // Check for safe shutdown
+        // Make sure all belts / turntables cleared where possible
+        Boolean beltsClear;
         do {
             
             // Reset for loop
             beltsClear = true;
             
-            // Check if each belt clear and update flag if needed
-            for (Belt belt : belts) {
-                if (!belt.isEmpty()) {
-                    beltsClear = false;
-                }
-            }
             for (Turntable turntable : turntables) {
-                if (turntable.isFull()) {
-                    beltsClear = false;
+                if (turntable.isBlocked()) {
+                    // Do nothing - already shut self down
+                    System.out.println("TT shutdown");
                 }
+                else if (turntable.hasPresent()) {
+                    // Still running and has present - allow to continue
+                    beltsClear = false;
+                    System.out.println("TT has present");
+                }
+                else if (!turntable.hasPresent() && !turntable.inputsClear()) {
+                    // Currently has no present but will be taking one from belt
+                    beltsClear = false;
+                    System.out.println("TT has no present but input waiting");
+                }
+                // Else, can assume TT is running but has no present and no inputs
+                // If all in this state, can shut down machine
             }
-            
+            System.out.println("Belts clear value: " + beltsClear);
         } while (!beltsClear);
         
+        System.out.println("Switching off all turntables");
         // Send stop indicator to all turntables 
         for (Turntable turntable : turntables) {
             turntable.switchOff();
         }
         
-        // Wait till everything complete
+        System.out.println("turntables switched off");
+        
+        System.out.println("joining all threads");
+        
+        // Know everything that can finish has, so now stop threads
+        // Hoppers may be stuck waiting, so send interrupt instead of join
         for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
+            // try {
+                // System.out.println("calling thread join");
+                // thread.join();
+                System.out.println("calling thread interrupt");
+                thread.interrupt();
+            //} catch (InterruptedException ex) {
+            //    ex.printStackTrace();
+            //}
         }
+        
+        System.out.println("threads interrupted");
         
         endTime = System.currentTimeMillis();
         
@@ -321,6 +340,10 @@ public class Machine {
         // All threads complete - machine shutdown
         logOutput("Machine shutdown", false);
         printSummary();
+        
+        for (Thread thread : threads) {
+            System.out.println("thread " + thread.getName() + " running:"  + thread.isAlive());
+        }
     }
 
     private void logOutput(String input, Boolean finalLog) {
@@ -366,10 +389,10 @@ public class Machine {
         }
 
         for (Turntable turntable : turntables) {
-            if (turntable.isFull()) {
+            if (turntable.hasPresent()) {
                 onTurntableCount++;
             }
-            // System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.isFull() ? "1" : "0"));
+            // System.out.println("- Turntable ID: " + turntable.getId() + ". Present on turntable: " + (turntable.hasPresent() ? "1" : "0"));
         }
 
         System.out.println("Total presents left on machine (Belts and turntables): " + (onBeltCount + onTurntableCount));
