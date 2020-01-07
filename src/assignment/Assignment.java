@@ -28,7 +28,6 @@ public class Assignment {
         // Create machine and runMachine running
         Machine machine = new Machine(config, configFile);
         machine.runMachine();
-
     }
 
 }

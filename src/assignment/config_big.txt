@@ -9,16 +9,16 @@ BELTS
 
 HOPPERS
 3
-1 belt 1 capacity 20 speed 2
+1 belt 1 capacity 20 speed 1
 2 belt 2 capacity 10 speed 2
-3 belt 4 capacity 50 speed 2
+3 belt 4 capacity 50 speed 3
 
 SACKS
 5
 1 capacity 20 age 0-3
-2 capacity 10 age 4-6
+2 capacity 05 age 4-6
 3 capacity 30 age 7-10
-4 capacity 15 age 4-6
+4 capacity 01 age 4-6
 5 capacity 20 age 11-16
 
 TURNTABLES
@@ -72,4 +72,4 @@ PRESENTS 3
 11-16
 0-3
 
-TIMER 60
+TIMER 30

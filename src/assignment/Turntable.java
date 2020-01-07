@@ -30,6 +30,7 @@ public class Turntable implements Runnable {
     private Boolean isBlocked = false;
     private Present present;
     private String currentAlignment = EAST_WEST;
+    private Turntable[] turntables;
     private TurntableConnector[] inputBelts = new TurntableConnector[4];
     private TurntableConnector[] outputBelts = new TurntableConnector[4];
     private TurntableConnector[] outputSacks = new TurntableConnector[4];
@@ -139,23 +140,30 @@ public class Turntable implements Runnable {
                                 for (int beltDestination : beltDestinations) {
                                     if (destinationSack == beltDestination) {
                                         destination = outputBelt;
+
+                                        // Check belts output turntable isn't blocked
+                                        if (checkSubsequentBlocked(destination)) {
+
+                                            // Stop turntable - prevents us getting into deadlock
+                                            // by trying to add to belt that may never complete
+
+                                            // Now this turntable is blocked, so shutdown
+                                            isActive = false;
+                                            isBlocked = true;
+                                            return;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
                 }
 
                 // Safety check that a destination has been found
                 if (destination == null) {
-                    /*
-                    System.out.println("***TURNTABLE ID: " + this.id + "***");
-                    present = null;
-                    System.out.println("Suitable output not found - disposing present");
-                    return;
-                    */
-                    
-                    System.out.println("***TURNTABLE ID " + this.id + " BLOCKED***");
+            
+                    // System.out.println("***TURNTABLE ID " + this.id + " BLOCKED***");
                     // Set flags to shutdown turntable and return early
                     // with present still on turntable
                     isActive = false;
@@ -167,12 +175,11 @@ public class Turntable implements Runnable {
                 alignTurntable(destination);
 
                 // Move present to receiver
-                destination.port.addPresent(present);
                 movePresentDelay();
-
-                // Present has gone so clear local holder
+                destination.port.addPresent(present);
+                
+                // Present has gone so clear local val
                 present = null;
-
             }
         }
     }
@@ -181,19 +188,18 @@ public class Turntable implements Runnable {
         // Return if stopped due to block or nothing on turntable
         if (isBlocked) {
             return true;
-        }
-        else {
+        } else {
             return present != null;
         }
     }
-    
+
     public Boolean isBlocked() {
         return isBlocked;
     }
-    
+
     public Boolean inputsClear() {
         Boolean isClear = true;
-        
+
         // Check all inputs for available 
         for (TurntableConnector inputBelt : inputBelts) {
             if (inputBelt != null) {
@@ -204,7 +210,7 @@ public class Turntable implements Runnable {
         }
         return isClear;
     }
-    
+
     public Boolean hasPresent() {
         // Return if there is a present on the turntable
         return present != null;
@@ -214,13 +220,13 @@ public class Turntable implements Runnable {
         try {
             Thread.sleep(MOVE_SPEED);
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            System.out.println("TT MOVE INTERRUPTED");
         }
     }
 
     private void alignTurntable(TurntableConnector connection) {
         Boolean isAligned;
-        
+
         // Checks current alignment to given connection
         if (connection == allConnections[NORTH] || connection == allConnections[SOUTH]) {
             isAligned = currentAlignment.equals(NORTH_SOUTH);
@@ -233,7 +239,7 @@ public class Turntable implements Runnable {
             try {
                 Thread.sleep(TURN_SPEED);
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                System.out.println("TT ALIGN INTERUPTED");
             }
 
             // Update new alignment
@@ -247,5 +253,33 @@ public class Turntable implements Runnable {
 
     public String getId() {
         return id;
+    }
+
+    public void setTurntables(Turntable[] turntables) {
+        this.turntables = turntables;
+    }
+
+    private Boolean checkSubsequentBlocked(TurntableConnector connector) {
+        // Get belt ID
+
+        Belt belt = (Belt) connector.port;
+        int beltId = belt.getId();
+
+        // Find turntable which receives from that belt
+        Turntable receivingTurntable = null;
+
+        for (Turntable turntable : turntables) {
+            for (TurntableConnector inputBelt : turntable.inputBelts) {
+                if (inputBelt != null && inputBelt.port.getId() == beltId) {
+                    receivingTurntable = turntable;
+                }
+            }
+        }
+
+        if (receivingTurntable == null) {
+            throw new IllegalStateException("Receiving TT not found for belt " + beltId);
+        }
+
+        return receivingTurntable.isBlocked();
     }
 }
